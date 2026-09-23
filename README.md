@@ -4,20 +4,21 @@ Plantillas, calendario editorial y seguimiento de la ejecución semanal de redes
 
 La estrategia y los criterios editoriales (audiencia, tono, qué se le pide al lector) están definidos en [`redes-sociales-plan.md`](https://github.com/mistorias/mistorias-esencia-de-marca/blob/main/redes-sociales-plan.md), en el repo `mistorias-esencia-de-marca`. Este repo aloja la ejecución: lo que se usa cada semana para publicar y lo que se registra después.
 
-## Herramienta de publicación: Buffer
+## Decisiones arquitecturales (ADR)
 
-Se eligió [Buffer](https://buffer.com) (plan gratuito) para publicar en las tres redes. Razón: es la única opción gratuita evaluada (junto a Metricool y Publer) con API pública en su plan free (GraphQL, 1 API key, 3000 requests/30 días), lo que permite alimentarla por código en vez de pegar el post a mano cada semana en la interfaz web. Detalle completo de la evaluación en la sección 13.4 del plan.
+Las decisiones sobre cómo se construye y con qué herramientas se opera este repo viven en `docs/adr/`, no en este README:
 
-**Pendiente (manual, requiere login de Mistorias):**
-- Crear la cuenta de Buffer.
-- Conectar la Página de Facebook.
-- Conectar la cuenta de Instagram profesional (debe estar vinculada a la Página de Facebook — requisito de Meta, no de Buffer).
-- Conectar la cuenta de X.
-- Generar el API key desde la configuración de la cuenta.
+- [ADR 0001 — Herramienta de publicación: Buffer](docs/adr/0001-herramienta-publicacion-buffer.md).
+- **Pendiente:** ADR sobre el tech stack de la integración (lenguaje/runtime, manejo de credenciales, testing) para el script o skill que llamará a la API de Buffer. Se escribe antes de empezar esa integración.
 
-**ADR pendiente:** selección del tech stack de este repositorio (lenguaje/runtime, cómo se estructura el script o skill que llama a la API de Buffer, manejo de credenciales, testing). Se decide antes de escribir la integración — no hay código de tech stack todavía.
+## Pendiente de ejecución
 
-**Pendiente (siguiente tarea de código):** una vez exista el API key y esté resuelto el ADR de tech stack, documentar aquí el script/skill que toma la salida del skill `publicar-en-redes` (gancho + cierre por red + UTM) y crea el post en Buffer vía API.
+Manual, requiere login de Mistorias (detalle en el ADR 0001):
+
+- Crear la cuenta de Buffer y conectar Facebook, Instagram y X.
+- Generar el API key.
+
+Siguiente tarea de código, una vez exista el API key y esté resuelto el ADR de tech stack: el script/skill que toma la salida del skill `publicar-en-redes` (gancho + cierre por red + UTM) y crea el post en Buffer vía API.
 
 ## Qué va a haber aquí
 
@@ -25,7 +26,7 @@ Se eligió [Buffer](https://buffer.com) (plan gratuito) para publicar en las tre
 - **Calendario editorial** — qué historia se publica cada semana y en qué fecha.
 - **Seguimiento de intenciones con fecha** — el registro de quién anunció qué acción, dónde y con qué fecha de seguimiento (sección 13.6 del plan), y el formulario de resultados que se comparte en esa fecha.
 - **Lineamientos de moderación de comentarios** — cuando se definan (pendiente 13.2 del plan).
-- **ADR de tech stack** — decisión pendiente (ver arriba); una vez tomada, vive en `docs/adr/` de este repo.
+- **`docs/adr/`** — decisiones arquitecturales de este repo (ver arriba).
 - **Integración con Buffer** — script/skill de publicación vía API (ver arriba).
 
 ## Nota sobre datos sensibles
