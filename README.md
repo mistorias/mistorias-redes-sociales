@@ -15,7 +15,9 @@ Se eligió [Buffer](https://buffer.com) (plan gratuito) para publicar en las tre
 - Conectar la cuenta de X.
 - Generar el API key desde la configuración de la cuenta.
 
-**Pendiente (siguiente tarea de código):** una vez exista el API key, documentar aquí el script/skill que toma la salida del skill `publicar-en-redes` (gancho + cierre por red + UTM) y crea el post en Buffer vía API.
+**ADR pendiente:** selección del tech stack de este repositorio (lenguaje/runtime, cómo se estructura el script o skill que llama a la API de Buffer, manejo de credenciales, testing). Se decide antes de escribir la integración — no hay código de tech stack todavía.
+
+**Pendiente (siguiente tarea de código):** una vez exista el API key y esté resuelto el ADR de tech stack, documentar aquí el script/skill que toma la salida del skill `publicar-en-redes` (gancho + cierre por red + UTM) y crea el post en Buffer vía API.
 
 ## Qué va a haber aquí
 
@@ -23,6 +25,7 @@ Se eligió [Buffer](https://buffer.com) (plan gratuito) para publicar en las tre
 - **Calendario editorial** — qué historia se publica cada semana y en qué fecha.
 - **Seguimiento de intenciones con fecha** — el registro de quién anunció qué acción, dónde y con qué fecha de seguimiento (sección 13.6 del plan), y el formulario de resultados que se comparte en esa fecha.
 - **Lineamientos de moderación de comentarios** — cuando se definan (pendiente 13.2 del plan).
+- **ADR de tech stack** — decisión pendiente (ver arriba); una vez tomada, vive en `docs/adr/` de este repo.
 - **Integración con Buffer** — script/skill de publicación vía API (ver arriba).
 
 ## Nota sobre datos sensibles
