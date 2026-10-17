@@ -24,7 +24,7 @@ Siguiente tarea de código, una vez exista el API key y esté resuelto el ADR de
 
 - **Plantilla de publicación semanal** — la plantilla fija por red (imagen 16:9, gancho, cierre particular por red, enlace con UTM) descrita en la sección 8 del plan, lista para copiar y llenar cada semana.
 - **Calendario editorial** — qué historia se publica cada semana y en qué fecha.
-- **Seguimiento de intenciones con fecha** — el registro de quién anunció qué acción, dónde y con qué fecha de seguimiento (sección 13.6 del plan), y el formulario de resultados que se comparte en esa fecha.
+- **Seguimiento de intenciones** — el registro de quién anunció qué acción y dónde, con la fecha de seguimiento que fija el equipo (~2 meses desde el comentario, sección 13.6 del plan), y el formulario de resultados que se comparte en esa fecha.
 - **Lineamientos de moderación de comentarios** — cuando se definan (pendiente 13.2 del plan).
 - **`docs/adr/`** — decisiones arquitecturales de este repo (ver arriba).
 - **Integración con Buffer** — script/skill de publicación vía API (ver arriba).
