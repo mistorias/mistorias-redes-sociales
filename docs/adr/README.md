@@ -1,7 +1,8 @@
 # Decisiones Arquitecturales (ADR)
 
-Índice de los ADR de este repo. El contenido completo de cada decisión, su contexto y sus
-consecuencias viven en su propio archivo — esta tabla es solo para ubicarlos.
+Índice de los ADR de este repo. El contenido completo de cada decisión, su
+contexto y sus consecuencias viven en su propio archivo — esta tabla es solo
+para ubicarlos.
 
 | ADR                                            | Decisión                                                                        | Estado                                                                                |
 | ---------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
