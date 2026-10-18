@@ -2,9 +2,8 @@
 
 ## Estado
 
-Aceptada parcialmente: el lenguaje, el runtime y el gestor de paquetes quedan
-decididos. El manejo de credenciales y el framework de testing siguen abiertos
-(ver Pendiente).
+Aceptada. Los dos pendientes que dejó abiertos se resolvieron en ADR aparte (ver
+Pendiente).
 
 ## Contexto
 
@@ -39,8 +38,10 @@ va a usar el script de Buffer.
 
 ## Pendiente
 
-Se decide en el camino, a medida que avance la integración:
+Resuelto en otros ADR:
 
-- Manejo de credenciales — cómo se almacena e inyecta el API key de Buffer sin
-  commitearlo
-- Framework y umbral de testing/coverage
+- Manejo de credenciales: ver
+  [ADR 0004](0004-credenciales-y-minimo-privilegio.md).
+- Framework de testing: vitest, con tests de integración contra un servidor
+  falso. Ver [ADR 0005](0005-tests-de-integracion-con-servidor-falso.md), donde
+  sigue abierto el umbral de cobertura.
