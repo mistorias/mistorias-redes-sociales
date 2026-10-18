@@ -102,9 +102,9 @@ Pendiente) y se documenta acá cuando se decida:
 
 ### Formato de Markdown
 
-Las líneas de prosa se envuelven a 100 columnas (no las 80 por defecto de markdownlint): el equipo
-desarrolla en terminal, donde una línea más larga que el ancho de la ventana es difícil de leer
-completa. `pnpm format:markdown` hace el reflow con prettier y `pnpm lint:markdown` lo verifica;
+Las líneas, de prosa y de código, se envuelven a 80 columnas: el equipo también lee el repo desde el
+celular, donde una línea más ancha que la pantalla obliga a desplazarse de lado. El ancho vive en
+`.prettierrc.json`, así que aplica igual a markdown y al código TypeScript que venga. `pnpm format:markdown` hace el reflow con prettier y `pnpm lint:markdown` lo verifica;
 tablas y bloques de código quedan fuera de ese límite porque reformatearlos los vuelve ilegibles.
 Ver `.markdownlint-cli2.mjs` para el resto de los overrides sobre la config de
 `@github/markdownlint-github`, cada uno con su justificación en comentario.

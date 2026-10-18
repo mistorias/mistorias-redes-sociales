@@ -50,10 +50,10 @@ El repo usa [`prettier`](https://prettier.io/) para reflow de prosa y
 [`markdownlint-cli2`](https://github.com/DavidAnson/markdownlint-cli2) con la configuración de
 [`@github/markdownlint-github`](https://github.com/github/markdownlint-github) para el lint (ver
 `.markdownlint-cli2.mjs` para los overrides puntuales y su justificación, incluyendo el ancho de
-línea de 100 columnas).
+línea de 80 columnas).
 
 ```bash
-pnpm format:markdown      # reformatea la prosa a 100 columnas
+pnpm format:markdown      # reformatea la prosa a 80 columnas
 pnpm lint:markdown        # revisa todo el markdown del repo
 ```
 
