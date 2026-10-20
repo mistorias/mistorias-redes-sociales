@@ -4,8 +4,8 @@ import { init } from "@github/markdownlint-github";
 const markdownItFactory = () => markdownIt({ html: true });
 
 // Overrides sobre la config de @github/markdownlint-github:
-// - line-length: 100 columnas en vez de las 80 por defecto, para que se
-//   lea bien en terminal al desarrollar. No se revisan tablas ni bloques
+// - line-length: 80 columnas, para que se lea bien también en el celular,
+//   donde 100 obligaba a desplazarse de lado. No se revisan tablas ni bloques
 //   de código: reformatearlos para que entren en el ancho los vuelve
 //   ilegibles. `pnpm format:markdown` (prettier) hace el reflow de la
 //   prosa; este límite es la red que avisa si algo quedó sin reflow.
@@ -15,7 +15,7 @@ const markdownItFactory = () => markdownIt({ html: true });
 //   es lo que ya se escribe en todo el repo.
 const options = {
   config: init({
-    "line-length": { line_length: 100, code_blocks: false, tables: false },
+    "line-length": { line_length: 80, code_blocks: false, tables: false },
     "ul-style": { style: "dash" },
   }),
   customRules: ["@github/markdownlint-github"],

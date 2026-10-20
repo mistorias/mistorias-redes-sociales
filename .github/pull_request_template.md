@@ -14,7 +14,8 @@ empieza con un comentario y no con un `#` de nivel 1 (ver MD041 arriba).
 
 ## Por qué
 
-<!-- El problema que resuelve o el requerimiento que cumple. Enlaza issue o discusión. -->
+<!-- El problema que resuelve o el requerimiento que cumple.
+Enlaza issue o discusión. -->
 
 ## Cómo verificar
 
@@ -25,11 +26,13 @@ empieza con un comentario y no con un `#` de nivel 1 (ver MD041 arriba).
 
 ### Alcance
 
-- [ ] Hace una sola cosa y se lee de corrido; si es grande, se explica por qué no se dividió
+- [ ] Hace una sola cosa y se lee de corrido; si es grande, se explica por qué
+      no se dividió
 
 ### Seguridad
 
-- [ ] Si el cambio toca la integración con Buffer: no incluye API keys ni credenciales en el diff
+- [ ] Si el cambio toca la integración con Buffer: no incluye API keys ni
+      credenciales en el diff
 
 ## Relacionado
 
