@@ -31,10 +31,11 @@ Este repo aloja plantillas y calendario editorial en markdown, más una pieza de
 código en Node + TypeScript
 ([ADR 0002](adr/0002-tech-stack-integracion-buffer.md)): los scripts que arman
 los textos de cada red y los agendan en Buffer
-([ADR 0003](adr/0003-flujo-de-publicacion-automatica.md)). Lleva tests — no es
+([ADR 0003](adr/0003-flujo-de-difusion-automatica.md)). Lleva tests — no es
 código hipotético a futuro, es parte del alcance del repo. Este repo no guarda
-el registro de qué se publicó efectivamente: eso vive en `mistorias-contenido`,
-en `stories/<slug>/publicaciones.json`.
+el registro de qué se difundió efectivamente: eso vive en `mistorias-contenido`,
+en `stories/<slug>/difusion.json`. El vocabulario (difusión, borrador,
+aprobación) está en [CONTEXT.md](../CONTEXT.md).
 
 Ese código sigue los mismos principios de mistorias-web:
 

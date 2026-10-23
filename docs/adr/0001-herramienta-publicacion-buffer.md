@@ -3,7 +3,7 @@
 ## Estado
 
 Aceptada. El skill `publicar-en-redes` que se menciona abajo fue reemplazado por
-scripts deterministas ([ADR 0003](0003-flujo-de-publicacion-automatica.md)); la
+scripts deterministas ([ADR 0003](0003-flujo-de-difusion-automatica.md)); la
 elección de Buffer no cambia.
 
 ## Contexto
