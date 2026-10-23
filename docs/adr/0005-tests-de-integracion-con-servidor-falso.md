@@ -26,22 +26,24 @@ necesitaría la llave en CI, en contra del
   inyecta por configuración.
 - **Respuestas grabadas, no inventadas.** El servidor devuelve _fixtures_
   copiadas de respuestas reales de Buffer, sin datos sensibles. Cubren al menos:
-  agendar con éxito, error de validación, límite de requests (429), post
-  `fallido` y post que sigue pendiente pasados los reintentos.
+  crear un borrador, releer un borrador editado en Buffer, pasarlo a agendado (y
+  el camino alterno de borrarlo y crearlo agendado, si la API no permite lo
+  primero), error de validación, límite de requests (429), post `fallido` y post
+  que sigue pendiente pasados los reintentos.
 - **Smoke test de solo lectura**, con disparo manual (`workflow_dispatch`): con
   la llave real, lista los canales conectados y no crea nada. Detecta si Buffer
   cambió el contrato que las _fixtures_ asumen.
-- La espera de cinco minutos se inyecta como parámetro, para que los tests no
+- La espera de dos minutos se inyecta como parámetro, para que los tests no
   esperen de verdad.
 
 ## Consecuencias
 
 - La CI corre sin la llave de Buffer y sin tocar las redes.
 - Si Buffer cambia su API, los tests siguen en verde hasta que se corra el smoke
-  test o falle una publicación real. Se mitiga validando en runtime cada
-  respuesta (ver [docs/STANDARDS.md](../STANDARDS.md#específico-de-typescript)):
-  una respuesta inesperada falla con un mensaje claro en lugar de registrar
-  datos incorrectos.
+  test o falle una difusión real. Se mitiga validando en runtime cada respuesta
+  (ver [docs/STANDARDS.md](../STANDARDS.md#específico-de-typescript)): una
+  respuesta inesperada falla con un mensaje claro en lugar de registrar datos
+  incorrectos.
 - Las _fixtures_ se actualizan a mano cuando cambia el contrato; es trabajo
   explícito y visible en un PR.
 
