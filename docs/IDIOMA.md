@@ -12,6 +12,12 @@ tipos, constantes), nombres de archivos y módulos, y los mensajes de error se
 escriben en inglés, sin mezclar idiomas dentro de un mismo identificador:
 `publishPost` sí, `publicarPost` no.
 
+Las claves de los datos que leen los scripts (la propuesta de difusión, el
+registro de difusión, el feed) también van en inglés, como las claves de
+frontmatter en mistorias-web; los valores de dominio se quedan en castellano
+(`difundido`, `fallido`). El vocabulario del dominio y su nombre en el código
+están en [CONTEXT.md](../CONTEXT.md).
+
 ## Plantillas y calendario: castellano peruano
 
 La plantilla de publicación semanal y el calendario editorial se escriben en
