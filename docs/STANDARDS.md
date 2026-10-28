@@ -29,11 +29,13 @@ El idioma en que se escribe cada cosa está definido en
 
 Este repo aloja plantillas y calendario editorial en markdown, más una pieza de
 código en Node + TypeScript
-([ADR 0002](adr/0002-tech-stack-integracion-buffer.md)): el script o skill que
-llama a la API de Buffer para publicar lo que arma el skill `publicar-en-redes`.
-Lleva tests — no es código hipotético a futuro, es parte del alcance del repo.
-Este repo es agnóstico a lo publicado: no guarda un registro de qué se publicó
-efectivamente; eso se define en una sesión aparte en `mistorias-contenido`.
+([ADR 0002](adr/0002-tech-stack-integracion-buffer.md)): los scripts que arman
+los textos de cada red y los agendan en Buffer
+([ADR 0003](adr/0003-flujo-de-difusion-automatica.md)). Lleva tests — no es
+código hipotético a futuro, es parte del alcance del repo. Este repo no guarda
+el registro de qué se difundió efectivamente: eso vive en `mistorias-contenido`,
+en `stories/<slug>/difusion.json`. El vocabulario (difusión, borrador,
+autoaprobación) está en [CONTEXT.md](../CONTEXT.md).
 
 Ese código sigue los mismos principios de mistorias-web:
 
@@ -98,17 +100,17 @@ Ese código sigue los mismos principios de mistorias-web:
   tipo declarado (igual que mistorias-web hace con Zod para sus datos externos);
   la librería concreta se elige al construir la integración
 
-### Pendiente del ADR de tech stack
+### Tests y credenciales
 
-Lo siguiente sigue abierto (ver
-[ADR 0002](adr/0002-tech-stack-integracion-buffer.md), sección Pendiente) y se
-documenta acá cuando se decida:
-
-- Framework de testing y umbral de cobertura (en mistorias-web es 90%, medido en
-  cada corrida; ver su
-  [Control de cobertura](https://github.com/mistorias/mistorias-web/blob/main/docs/STANDARDS.md#control-de-cobertura)
-  como referencia, no como número ya decidido para este repo)
-- Cómo se manejan las credenciales de la API de Buffer sin commitearlas
+- Los tests de integración corren con vitest contra un servidor HTTP falso que
+  imita a Buffer, al feed del sitio y a GitHub; nunca contra la API real
+  ([ADR 0005](adr/0005-tests-de-integracion-con-servidor-falso.md)). El umbral
+  de cobertura es 90%, como en mistorias-web
+  ([Control de cobertura](https://github.com/mistorias/mistorias-web/blob/main/docs/STANDARDS.md#control-de-cobertura)),
+  y los tests de mutación llegarán después.
+- Ninguna credencial se commitea: la llave de Buffer y la del bot viven en
+  secrets de GitHub, y en local en un `.env` ignorado por git
+  ([ADR 0004](adr/0004-credenciales-y-minimo-privilegio.md)).
 
 ### Formato de Markdown
 
@@ -218,7 +220,7 @@ Debe seguir el formato de Conventional Commits, en estilo preemptive:
 
 ```text
 docs: el equipo dispone de la plantilla semanal de publicación por red (issue #XX)
-feat: el script de Buffer publica el post armado por publicar-en-redes (issue #YY)
+feat: el script de Buffer agenda los posts aprobados de una historia (issue #YY)
 ```
 
 Un cambio que rompe compatibilidad se marca con `!` tras el tipo (`feat!: ...`)
