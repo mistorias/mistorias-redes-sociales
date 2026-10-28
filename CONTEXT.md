@@ -37,18 +37,31 @@ y la invitación a leer.
 qué red llegó cada visita.
 
 **Propuesta de difusión**: El archivo `difusiones/<slug>.json` con los textos de
-cada red, y el PR que lo trae. Hacer disponible ese PR (merge) aprueba el texto,
-no la difusión. _Avoid_: PR 1, borrador (ese término es de Buffer).
+cada red, y el PR que lo trae. Hacer disponible ese PR (merge) aprueba el texto
+y, con eso, arranca la Autoaprobación de la difusión. Nunca se hace disponible
+sola. _Avoid_: PR 1, borrador (ese término es de Buffer).
 
-**Borrador**: El post creado en Buffer que todavía no está en la cola. Se revisa
-con la vista previa de cada red antes de aprobar. En el código: `draft`.
+**Borrador**: El post creado en Buffer que todavía no está en la cola. Se crea
+al abrirse la Ventana de cancelación, para ver la vista previa de cada red
+mientras corre. En el código: `draft`.
 
-**Aprobación de la difusión**: El clic en _Approve deployment_ del environment
-`difusion` en GitHub, después de revisar los borradores. Es el único acto que
-autoriza que algo salga en redes. _Avoid_: merge, aprobación del PR.
+**Autoaprobación de la difusión**: La difusión sigue sola, sin que nadie haga
+clic, cuando se cumple la Ventana de cancelación sin que se haya cancelado.
+Quién hizo disponible la propuesta y quién canceló queda en GitHub. _Avoid_:
+aprobación (sugiere un clic que no existe), merge.
 
-**Agendado**: Un borrador que pasó a la cola de Buffer con fecha y hora: dos
-minutos después de la aprobación. En el código: `scheduled`.
+**Ventana de cancelación**: El tiempo entre crear los borradores y agendarlos,
+en el que se puede cancelar. Dura 60 segundos salvo que la variable
+`BROADCAST_CANCEL_WINDOW_SECONDS` diga otra cosa.
+
+**Cancelar la difusión**: Cancelar la ejecución en curso en Actions durante la
+Ventana de cancelación. Los borradores se borran y no sale nada. La propuesta ya
+fusionada sigue en el repo, así que el cron no la vuelve a proponer; para
+difundir después se vuelve a correr esa ejecución.
+
+**Agendado**: Un borrador que pasó a la cola de Buffer con fecha y hora, dos
+minutos después de cumplida la Ventana de cancelación. En el código:
+`scheduled`.
 
 **Difundido**: Estado del post que Buffer confirmó como enviado a la red. Es
 valor de dominio y se escribe así en los datos: `difundido`.
@@ -67,13 +80,13 @@ difusión es candidata. En el código: `storyFeed`.
 
 ## Ejemplo de diálogo
 
-**Dev:** Ya está disponible la propuesta de difusión de la historia de Dayana,
-pero en Instagram no salió nada.
+**Dev:** Hice disponible la propuesta de difusión de la historia de Dayana y ya
+hay borradores en Buffer, pero en Instagram todavía no salió nada.
 
-**Editor:** Correcto: hacer disponible la propuesta solo crea los borradores.
-Falta la aprobación de la difusión.
+**Editor:** Correcto: está corriendo la ventana de cancelación. Si no la
+cancelas, la difusión se autoaprueba.
 
-**Dev:** Reviso los borradores en Buffer y apruebo el deployment en GitHub.
+**Dev:** Ya vi los borradores, están bien. Dejo que corra.
 
-**Editor:** Sí. En dos minutos quedan agendados, y cuando Buffer confirme llega
-el PR con el registro de difusión: `difundido` o `fallido` por cada red.
+**Editor:** En dos minutos quedan agendados, y cuando Buffer confirme llega el
+PR con el registro de difusión: `difundido` o `fallido` por cada red.
