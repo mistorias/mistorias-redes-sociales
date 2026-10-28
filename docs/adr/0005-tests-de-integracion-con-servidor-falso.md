@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aceptada. El umbral de cobertura sigue abierto (ver Pendiente).
+Aceptada. Los tests de mutación quedan pendientes (ver Pendiente).
 
 ## Contexto
 
@@ -31,10 +31,21 @@ necesitaría la llave en CI, en contra del
   primero), error de validación, límite de requests (429), post `fallido` y post
   que sigue pendiente pasados los reintentos.
 - **Smoke test de solo lectura**, con disparo manual (`workflow_dispatch`): con
-  la llave real, lista los canales conectados y no crea nada. Detecta si Buffer
-  cambió el contrato que las _fixtures_ asumen.
-- La espera de dos minutos se inyecta como parámetro, para que los tests no
-  esperen de verdad.
+  una llave **distinta y de solo lectura** (`BUFFER_READ_ONLY_API_KEY`, ver
+  [ADR 0004](0004-credenciales-y-minimo-privilegio.md)), lista los canales
+  conectados y no crea nada. Detecta si Buffer cambió el contrato que las
+  _fixtures_ asumen. Si Buffer no ofrece esa llave, se corre solo en local.
+- La ventana de cancelación, la espera de dos minutos y la señal de cancelación
+  se inyectan como parámetros, para que los tests no esperen de verdad. Casos
+  propios de la ventana:
+  - cancelar durante la ventana no agenda nada y borra los borradores;
+  - sin la variable `BROADCAST_CANCEL_WINDOW_SECONDS`, la ventana vale 60;
+  - un valor que no es un entero entre 10 y 3600 falla antes de cualquier
+    llamada a Buffer;
+  - cumplida la ventana sin cancelar, se agenda a dos minutos.
+- **Umbral de cobertura: 90%**, el mismo de mistorias-web, medido en cada
+  corrida
+  ([Control de cobertura](https://github.com/mistorias/mistorias-web/blob/main/docs/STANDARDS.md#control-de-cobertura)).
 
 ## Consecuencias
 
@@ -49,5 +60,6 @@ necesitaría la llave en CI, en contra del
 
 ## Pendiente
 
-- Umbral de cobertura: se fija al escribir el primer código, con la referencia
-  del 90% de mistorias-web.
+- Tests de mutación, como mistorias-web
+  ([su ADR 0019](https://github.com/mistorias/mistorias-web/blob/main/docs/adr/0019-mutation-testing-y-su-reporte-en-github-pages.md)),
+  cuando exista código que mutar.

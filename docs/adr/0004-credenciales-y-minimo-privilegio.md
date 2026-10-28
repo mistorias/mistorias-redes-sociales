@@ -28,79 +28,91 @@ Buffer ofrece dos tipos de credencial:
 
 ## Decisión
 
+**Una credencial por función.** Cada job recibe una sola credencial, guardada en
+un _environment_ que solo admite despliegues desde `main`, de modo que ningún
+otro workflow ni rama pueda leerla. `GITHUB_TOKEN` queda en `contents: read` en
+todos los jobs, y cada workflow declara `permissions` explícitos.
+
+| Job                 | Credencial                                                                                               | Environment      |
+| ------------------- | -------------------------------------------------------------------------------------------------------- | ---------------- |
+| `proponer` (cron)   | App **propuestas**: variable `SOCIAL_PROPOSALS_BOT_CLIENT_ID`, secret `SOCIAL_PROPOSALS_BOT_PRIVATE_KEY` | `propuestas`     |
+| `difundir`          | `BUFFER_API_KEY` (escritura)                                                                             | `buffer`         |
+| `registrar`         | App **registro**: variable `SOCIAL_RECORD_BOT_CLIENT_ID`, secret `SOCIAL_RECORD_BOT_PRIVATE_KEY`         | `registro`       |
+| Smoke test (manual) | `BUFFER_READ_ONLY_API_KEY` (solo lectura)                                                                | `buffer-lectura` |
+
+Cada pieza ve solo lo que necesita: el cron que propone no toca Buffer ni
+`mistorias-contenido`; el job que difunde no puede abrir PRs; el que registra no
+puede publicar en redes; y el smoke test no puede escribir en Buffer. No hay
+environment de aprobación: la difusión se autoaprueba
+([ADR 0003](0003-flujo-de-difusion-automatica.md)).
+
 ### Credencial de Buffer: Personal Access
 
 Mistorias difunde solo en sus propios canales, así que se usa **Personal
 Access**. OAuth agregaría una redirección, un _refresh token_ que renovar y una
 aplicación que registrar, sin aportar nada a una sola organización.
 
-| Dónde                     | Cómo                                                                                                           |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| GitHub                    | Secret `BUFFER_API_KEY` del _environment_ `buffer` de este repo                                                |
-| Jobs que la leen          | Solo `borradores` y `agendar`, que declaran `environment: buffer`; el cron y el job `aprobacion` no la ven     |
-| Desarrollo local          | `.env` (ya ignorado por `.gitignore`); `.env.example` documenta la variable sin valor                          |
-| Tests de integración y CI | No la necesitan: corren contra un servidor falso ([ADR 0005](0005-tests-de-integracion-con-servidor-falso.md)) |
+La llave de escritura la lee solo `difundir`, desde
+`process.env.BUFFER_API_KEY`; falla con un mensaje claro si falta y nunca la
+imprime ni la incluye en un error. En local, `.env` (ya ignorado por
+`.gitignore`) y `.env.example` documenta la variable sin valor. Los tests de
+integración y la CI no la necesitan: corren contra un servidor falso
+([ADR 0005](0005-tests-de-integracion-con-servidor-falso.md)).
 
-El código lee la llave de `process.env.BUFFER_API_KEY` y falla con un mensaje
-claro si no está; nunca la imprime ni la incluye en un error.
+El smoke test de solo lectura usa una **llave distinta**, con permiso de solo
+lectura. **Sin verificar:** que Buffer ofrezca llaves con permisos acotados y
+más de una llave en el plan gratuito
+([spike #11](https://github.com/mistorias/mistorias-redes-sociales/issues/11)).
+Si no las ofrece, el smoke test se corre solo en local con `.env`, nunca en
+Actions, y el environment `buffer-lectura` no se crea.
 
-### Bot de GitHub: una App propia, distinta de la de contenido
+### Bots de GitHub: dos Apps, distintas de la de contenido
 
-Los PRs los abre una **GitHub App nueva** (el bot de redes), distinta de la que
-mistorias-web usa para actualizar el contenido (`CONTENT_BOT_*`):
+Los PRs los abren dos **GitHub Apps nuevas**, distintas de la que mistorias-web
+usa para actualizar el contenido (`CONTENT_BOT_*`):
 
-| Permiso                   | Valor                                                            |
-| ------------------------- | ---------------------------------------------------------------- |
-| Instalada en              | Solo `mistorias-redes-sociales` y `mistorias-contenido`          |
-| Permisos de repositorio   | `contents: write`, `pull_requests: write`; nada más              |
-| Credenciales en este repo | Variable `SOCIAL_BOT_CLIENT_ID`, secret `SOCIAL_BOT_PRIVATE_KEY` |
-| Token                     | De instalación, generado en cada job; vence en una hora          |
+| App            | Instalada solo en          | Permisos de repositorio                   |
+| -------------- | -------------------------- | ----------------------------------------- |
+| **propuestas** | `mistorias-redes-sociales` | `contents: write`, `pull_requests: write` |
+| **registro**   | `mistorias-contenido`      | `contents: write`, `pull_requests: write` |
 
-Es una App distinta porque el job que la usa también tiene la llave de Buffer, y
-con ella puede difundir en redes. Si se comprometiera el bot de contenido, no
-llegaría a las redes; si se comprometiera el bot de redes, no llegaría a
-mistorias-web. Ninguno de los dos hace merge: el flujo solo abre PRs, y el merge
-queda en manos de una persona. Conviene que la protección de `main` de los dos
-repos donde escribe el bot lo exija también.
+El token de instalación se genera en cada job y vence en una hora; el job
+`registrar` lo genera al final, cuando ya tiene el resultado. Son dos Apps y no
+una porque una sola clave privada podría emitir tokens para ambos repos: si se
+comprometiera la clave del cron, no llegaría a `mistorias-contenido`, y si se
+comprometiera la del registro, no llegaría a este repo. Ninguna hace merge: el
+flujo solo abre PRs. Conviene que la protección de `main` de los dos repos donde
+escriben lo exija también.
 
-### La aprobación es un environment sin secretos
+### Variable de la ventana de cancelación
 
-La _Aprobación de la difusión_
-([ADR 0003](0003-flujo-de-difusion-automatica.md)) vive en un segundo
-environment, `difusion`, que tiene revisor obligatorio y **ningún secreto**. El
-job `agendar` depende de él (`needs: aprobacion`) y es el que entra a `buffer`.
-Así la llave vive en un solo lugar y se rota en uno solo, y aprobar no le da a
-nadie acceso a ella. Mientras haya una sola persona en el equipo, `difusion`
-necesita _Prevent self-review_ apagado; si no, nadie podría aprobar.
+`BROADCAST_CANCEL_WINDOW_SECONDS` es una **variable** de repositorio, no un
+secret: no es sensible y conviene verla en la configuración. Vacía o ausente
+vale 60; el job `difundir` falla si no es un entero entre 10 y 3600.
 
 ### Lo que no tiene credenciales
 
-- El cron que lee `/historias.json` usa HTTP público, sin secretos.
-- El job `aprobacion` solo espera el clic; no lee secretos.
+- El cron lee `/historias.json` por HTTP público, sin secretos.
 - mistorias-web no recibe ninguna credencial hacia este repo.
 
 ### Rotación
 
-Si la llave se filtra, o una vez al año:
+Cada credencial se rota sola, sin tocar las demás, si se filtra o una vez al
+año:
 
-1. Generar una nueva Personal Access key en Buffer y revocar la anterior.
-2. Reemplazar el secret `BUFFER_API_KEY` del environment `buffer`.
-3. Lanzar a mano el smoke test de solo lectura para confirmar que la llave nueva
-   responde.
-
-Para la App: generar una nueva clave privada, reemplazar
-`SOCIAL_BOT_PRIVATE_KEY` y borrar la clave anterior en la configuración de la
-App.
+- **Llave de Buffer:** generar una nueva Personal Access key, revocar la
+  anterior, reemplazar el secret del environment correspondiente y lanzar a mano
+  el smoke test para confirmar que responde.
+- **App:** generar una nueva clave privada, reemplazar el secret de su
+  environment y borrar la clave anterior en la configuración de la App.
 
 ## Consecuencias
 
 - Una llave filtrada desde un `.env` local afecta solo a Buffer, y se revoca sin
   tocar GitHub.
-- Hay dos Apps que mantener en lugar de una. Es el costo de que difundir en
-  redes y actualizar el contenido queden aislados entre sí.
-- Hay dos environments (`buffer` y `difusion`) que configurar a mano en GitHub;
-  el README los lista como pendientes de ejecución.
+- Hay más piezas que configurar a mano: dos Apps y tres o cuatro environments.
+  El README las lista como pendientes de ejecución. Es el costo de que ninguna
+  credencial alcance más de lo que su job necesita.
 - Los límites del plan gratuito de Buffer (1 Personal Access key; 100 requests
   cada 15 minutos y 3000 cada 30 días) salen de fuentes secundarias: no se pudo
-  abrir developers.buffer.com al escribir este ADR. Hay que confirmarlos en la
-  consola de Buffer al generar la llave y corregir este párrafo si difieren.
+  abrir developers.buffer.com al escribir este ADR. El spike #11 los confirma.

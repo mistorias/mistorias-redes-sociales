@@ -35,7 +35,7 @@ los textos de cada red y los agendan en Buffer
 código hipotético a futuro, es parte del alcance del repo. Este repo no guarda
 el registro de qué se difundió efectivamente: eso vive en `mistorias-contenido`,
 en `stories/<slug>/difusion.json`. El vocabulario (difusión, borrador,
-aprobación) está en [CONTEXT.md](../CONTEXT.md).
+autoaprobación) está en [CONTEXT.md](../CONTEXT.md).
 
 Ese código sigue los mismos principios de mistorias-web:
 
@@ -104,10 +104,10 @@ Ese código sigue los mismos principios de mistorias-web:
 
 - Los tests de integración corren con vitest contra un servidor HTTP falso que
   imita a Buffer, al feed del sitio y a GitHub; nunca contra la API real
-  ([ADR 0005](adr/0005-tests-de-integracion-con-servidor-falso.md)). Sigue
-  abierto el umbral de cobertura (en mistorias-web es 90%; ver su
-  [Control de cobertura](https://github.com/mistorias/mistorias-web/blob/main/docs/STANDARDS.md#control-de-cobertura)
-  como referencia, no como número ya decidido para este repo).
+  ([ADR 0005](adr/0005-tests-de-integracion-con-servidor-falso.md)). El umbral
+  de cobertura es 90%, como en mistorias-web
+  ([Control de cobertura](https://github.com/mistorias/mistorias-web/blob/main/docs/STANDARDS.md#control-de-cobertura)),
+  y los tests de mutación llegarán después.
 - Ninguna credencial se commitea: la llave de Buffer y la del bot viven en
   secrets de GitHub, y en local en un `.env` ignorado por git
   ([ADR 0004](adr/0004-credenciales-y-minimo-privilegio.md)).
