@@ -68,16 +68,14 @@ en el [ADR 0001](docs/adr/0001-herramienta-publicacion-buffer.md)).
 
 Primero, el
 [spike #11](https://github.com/mistorias/mistorias-redes-sociales/issues/11):
-confirma con la API de Buffer el paso de borrador a cola, las llaves de solo
-lectura y los límites reales.
+confirma con la API de Buffer el paso de borrador a cola, los campos de estado y
+los límites reales. Ya confirmó que el plan gratuito permite una sola llave.
 
 Manual, requiere login de Mistorias. En GitHub, cada environment admite
 despliegues solo desde `main`:
 
 - Generar una **Personal Access** key en Buffer (no un App Client) y guardarla
   como secret `BUFFER_API_KEY` del environment `buffer`.
-- Si el spike confirma que existe: generar una segunda llave de solo lectura y
-  guardarla como `BUFFER_READ_ONLY_API_KEY` en el environment `buffer-lectura`.
 - Crear la GitHub App **propuestas**, instalarla solo en este repo con
   `contents: write` y `pull_requests: write`, y guardar
   `SOCIAL_PROPOSALS_BOT_CLIENT_ID` (variable) y
