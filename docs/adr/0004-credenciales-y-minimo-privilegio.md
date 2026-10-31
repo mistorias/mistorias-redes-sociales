@@ -33,18 +33,18 @@ un _environment_ que solo admite despliegues desde `main`, de modo que ningún
 otro workflow ni rama pueda leerla. `GITHUB_TOKEN` queda en `contents: read` en
 todos los jobs, y cada workflow declara `permissions` explícitos.
 
-| Job                 | Credencial                                                                                               | Environment      |
-| ------------------- | -------------------------------------------------------------------------------------------------------- | ---------------- |
-| `proponer` (cron)   | App **propuestas**: variable `SOCIAL_PROPOSALS_BOT_CLIENT_ID`, secret `SOCIAL_PROPOSALS_BOT_PRIVATE_KEY` | `propuestas`     |
-| `difundir`          | `BUFFER_API_KEY` (escritura)                                                                             | `buffer`         |
-| `registrar`         | App **registro**: variable `SOCIAL_RECORD_BOT_CLIENT_ID`, secret `SOCIAL_RECORD_BOT_PRIVATE_KEY`         | `registro`       |
-| Smoke test (manual) | `BUFFER_READ_ONLY_API_KEY` (solo lectura)                                                                | `buffer-lectura` |
+| Job                 | Credencial                                                                                               | Environment  |
+| ------------------- | -------------------------------------------------------------------------------------------------------- | ------------ |
+| `proponer` (cron)   | App **propuestas**: variable `SOCIAL_PROPOSALS_BOT_CLIENT_ID`, secret `SOCIAL_PROPOSALS_BOT_PRIVATE_KEY` | `propuestas` |
+| `difundir`          | `BUFFER_API_KEY` (escritura)                                                                             | `buffer`     |
+| `registrar`         | App **registro**: variable `SOCIAL_RECORD_BOT_CLIENT_ID`, secret `SOCIAL_RECORD_BOT_PRIVATE_KEY`         | `registro`   |
+| Smoke test (manual) | `BUFFER_API_KEY` (la misma de `difundir`; el código solo lee)                                            | `buffer`     |
 
 Cada pieza ve solo lo que necesita: el cron que propone no toca Buffer ni
 `mistorias-contenido`; el job que difunde no puede abrir PRs; el que registra no
-puede publicar en redes; y el smoke test no puede escribir en Buffer. No hay
-environment de aprobación: la difusión se autoaprueba
-([ADR 0003](0003-flujo-de-difusion-automatica.md)).
+puede publicar en redes. El smoke test es la excepción: comparte la llave de
+`difundir` (ver abajo). No hay environment de aprobación: la difusión se
+autoaprueba ([ADR 0003](0003-flujo-de-difusion-automatica.md)).
 
 ### Credencial de Buffer: Personal Access
 
@@ -59,12 +59,30 @@ imprime ni la incluye en un error. En local, `.env` (ya ignorado por
 integración y la CI no la necesitan: corren contra un servidor falso
 ([ADR 0005](0005-tests-de-integracion-con-servidor-falso.md)).
 
-El smoke test de solo lectura usa una **llave distinta**, con permiso de solo
-lectura. **Sin verificar:** que Buffer ofrezca llaves con permisos acotados y
-más de una llave en el plan gratuito
-([spike #11](https://github.com/mistorias/mistorias-redes-sociales/issues/11)).
-Si no las ofrece, el smoke test se corre solo en local con `.env`, nunca en
-Actions, y el environment `buffer-lectura` no se crea.
+### Smoke test: la misma llave, acotada por código
+
+Buffer ofrece llaves de solo lectura, pero el plan gratuito permite **una sola
+llave**, confirmado en el
+[spike #11](https://github.com/mistorias/mistorias-redes-sociales/issues/11).
+Esa llave tiene que escribir, porque `difundir` crea y agenda posts. No queda
+una segunda llave de solo lectura para el smoke test.
+
+Se prefirió mantener el smoke test en Actions antes que correrlo solo en local:
+así lo lanza cualquiera del equipo, sin tener la llave en su máquina, y no
+depende de una persona. Por eso:
+
+- Usa `BUFFER_API_KEY` del environment `buffer`, con disparo manual
+  (`workflow_dispatch`) y solo desde `main`, igual que `difundir`.
+- El **código** del smoke test solo lee: su cliente rechaza cualquier mutación
+  antes de enviarla, y un test lo comprueba. El permiso de solo lectura lo da el
+  código, no la llave.
+- No se crean el environment `buffer-lectura` ni el secret
+  `BUFFER_READ_ONLY_API_KEY`.
+
+Es una excepción consciente al mínimo privilegio: el job del smoke test tiene
+una llave que podría escribir. Si el plan cambia a uno con más llaves, el smoke
+test pasa a una llave de solo lectura propia y vuelve el environment
+`buffer-lectura`.
 
 ### Bots de GitHub: dos Apps, distintas de la de contenido
 
@@ -110,9 +128,12 @@ año:
 
 - Una llave filtrada desde un `.env` local afecta solo a Buffer, y se revoca sin
   tocar GitHub.
-- Hay más piezas que configurar a mano: dos Apps y tres o cuatro environments.
-  El README las lista como pendientes de ejecución. Es el costo de que ninguna
-  credencial alcance más de lo que su job necesita.
-- Los límites del plan gratuito de Buffer (1 Personal Access key; 100 requests
-  cada 15 minutos y 3000 cada 30 días) salen de fuentes secundarias: no se pudo
-  abrir developers.buffer.com al escribir este ADR. El spike #11 los confirma.
+- Hay más piezas que configurar a mano: dos Apps y tres environments. El README
+  las lista como pendientes de ejecución. Es el costo de que ninguna credencial
+  alcance más de lo que su job necesita.
+- El smoke test y `difundir` comparten la llave: una falla en el código del
+  smoke test podría escribir en Buffer. Lo frena su cliente, que rechaza toda
+  mutación.
+- El plan gratuito de Buffer permite 1 Personal Access key (confirmado en el
+  spike #11). Los límites de requests (100 cada 15 minutos y 3000 cada 30 días)
+  salen de fuentes secundarias; el spike #11 los confirma.
