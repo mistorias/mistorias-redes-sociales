@@ -74,8 +74,12 @@ Se llenan en el issue al correr el spike.
 1. Borrador a cola sin recrearlo, mismo id: _pendiente_.
 2. Campos de estado (salió / falló, cuándo): _pendiente_.
 3. Llaves: **una sola** en el plan gratuito, confirmado en la interfaz al
-   intentar crear una segunda (Essentials permite 3). Solo lectura: _pendiente,
-   ver en la pantalla de creación de la llave_.
+   intentar crear una segunda (Essentials permite 3). El permiso de **solo
+   lectura existe**, pero con una sola llave hay que elegir: o escribe o solo
+   lee. Como `difundir` necesita escribir, la única llave es de escritura y no
+   queda llave de solo lectura para el smoke test. Según el issue, entonces el
+   smoke test se corre solo en local y no se crea el environment
+   `buffer-lectura`.
 4. Límite de requests (código, cabeceras, cifras reales): _pendiente_. La
    pantalla de Essentials anuncia 450 cada 15 min y 1800 cada 24 h; las del plan
    gratuito se leen de las cabeceras.
