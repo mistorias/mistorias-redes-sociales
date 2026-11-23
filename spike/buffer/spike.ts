@@ -320,25 +320,30 @@ async function deletePost(schema: Schema, id: string, label: string) {
   return result;
 }
 
-async function createScheduledDraft(schema: Schema, channelId: string) {
+async function createSpikePost(
+  schema: Schema,
+  channelId: string,
+  saveToDraft: boolean,
+  label: string,
+) {
   const field = rootField(schema, "mutation", "createPost");
   const inputType = argType(field, "input") ?? "CreatePostInput!";
-  // El borrador también lleva una hora lejana: si Buffer ignorara
-  // saveToDraft, el post quedaría a días y no en el próximo hueco.
+  // Aun con saveToDraft: false, el post lleva una hora lejana: si Buffer
+  // ignorara el modo, quedaría a días y no en el próximo hueco.
   const wanted = {
     text: SPIKE_TEXT,
     channelId,
     schedulingType: "automatic",
     mode: "customScheduled",
     dueAt: farFutureIso(),
-    saveToDraft: true,
+    saveToDraft,
   };
   const input = pick(wanted, inputFieldNames(schema, inputType));
-  if (input.saveToDraft !== true || input.text === undefined) {
+  if (input.saveToDraft !== saveToDraft || input.text === undefined) {
     throw new Error("CreatePostInput no acepta saveToDraft o text; no sigo.");
   }
   const result = await graphql(
-    "crear-borrador",
+    label,
     `mutation CreatePost($input: ${inputType}) {
        createPost(input: $input) { ${payloadSelection(schema, field)} }
      }`,
@@ -355,7 +360,12 @@ async function borradorACola(): Promise<void> {
   const channelId = requireEnv("BUFFER_SPIKE_CHANNEL_ID");
   const findings: Record<string, unknown> = {};
 
-  const created = await createScheduledDraft(schema, channelId);
+  const created = await createSpikePost(
+    schema,
+    channelId,
+    true,
+    "crear-borrador",
+  );
   findings.creado = created.post ?? created.result.body;
   if (!created.post) {
     report("No se pudo crear el borrador", created.result.body);
@@ -421,6 +431,27 @@ async function borradorACola(): Promise<void> {
       process.exitCode = 1;
     }
   }
+}
+
+// Deja un borrador y un agendado para que `estados` los lea. Quedan en
+// creados.json: `limpiar` los borra.
+async function sembrarEstados(): Promise<void> {
+  const schema = await loadSchema();
+  const channelId = requireEnv("BUFFER_SPIKE_CHANNEL_ID");
+  const draft = await createSpikePost(
+    schema,
+    channelId,
+    true,
+    "sembrar-borrador",
+  );
+  const scheduled = await createSpikePost(
+    schema,
+    channelId,
+    false,
+    "sembrar-agendado",
+  );
+  report("Borrador sembrado", draft.post ?? draft.result.body);
+  report("Agendado sembrado", scheduled.post ?? scheduled.result.body);
 }
 
 // Pregunta 2: ¿qué campos dicen si un post salió o falló, y cuándo?
@@ -504,6 +535,7 @@ const commands: Record<string, () => Promise<void>> = {
   esquema,
   canales,
   "borrador-a-cola": borradorACola,
+  "sembrar-estados": sembrarEstados,
   estados,
   limite,
   limpiar,
