@@ -57,14 +57,49 @@ flowchart TD
    hacia este repo. Se descartaron `repository_dispatch` desde el despliegue de
    la web (le daría a la web permiso de escritura sobre este repo) y leer los
    _deployments_ de GitHub (acopla el script a cómo despliega la web).
-2. **Propuesta de difusión, sin IA.** Un script aplica plantillas fijas por red:
-   el gancho es el `summary`, el cierre es el de cada red y el enlace lleva UTM
-   (`utm_source=<red>&utm_medium=social&utm_campaign=<slug>`). Valida los
-   límites de caracteres de cada red. El resultado queda en
-   `difusiones/<slug>.json` y llega como **PR de propuesta de difusión**: ahí se
-   revisa el texto y, si hace falta, se ajusta a mano. Si alguna vez una red
-   necesita un texto que la plantilla no resuelve, se le puede pedir a Claude
-   bajo demanda desde el PR; no es el camino por defecto.
+2. **Propuesta de difusión, sin IA.** Un script arma el texto de cada red de
+   [CONTEXT.md](../../CONTEXT.md) (Facebook, Instagram y X) a partir de su
+   _Plantilla de red_. La plantilla de cada red sale del plan de redes sociales.
+   Los huecos se llenan así:
+   - `<RESUMEN_HISTORIA>`: el `summary` de la historia. Va primero.
+   - `<LINK>`: el enlace a la historia con UTM
+     (`?utm_source=<red>&utm_medium=social&utm_campaign=<slug>`), que arma el
+     script. La plantilla ya no escribe los UTM a mano.
+   - `<TITULO_PRIMERA_NOTICIA>`: el título de la primera noticia de la semana.
+   - Hashtags: a partir de los **temas** de la historia. Cada tema está en
+     kebab-case (`educacion-publica`) y el script lo pasa a camelCase con `#` al
+     frente (`#educacionPublica`). Un hashtag válido solo tiene letras y
+     dígitos, sin espacios ni signos, y no es solo dígitos; un tema que no
+     cumpla se reporta, no se convierte a la fuerza.
+
+   La plantilla de Facebook es la base:
+
+   ```text
+   <RESUMEN_HISTORIA>
+
+   🤩 Ya está disponible la última historia en <LINK>
+
+   ➡️ Noticia de la semana: <TITULO_PRIMERA_NOTICIA>
+
+   #tag1 #tag2
+   ```
+
+   **X tiene su propia variante**, con estas reglas:
+   - Sin la línea de la noticia de la semana.
+   - Sin líneas en blanco entre párrafos.
+   - Sin límite de hashtags fijo: se agregan en el orden de los temas mientras
+     el texto quepa en 280 caracteres. Un hashtag no se corta a la mitad: si
+     ninguno cabe, no va ninguno.
+   - El conteo es el de X, no `length` de JavaScript: cada enlace cuenta 23
+     caracteres, sin importar su largo, y los emojis cuentan 2.
+   - El enlace se acorta con el acortador de Buffer. El canal de X lo tiene
+     activado (`buff.ly`); Facebook e Instagram no. El script no llama a ningún
+     acortador: Buffer lo aplica según la configuración del canal.
+
+   El resultado queda en `difusiones/<slug>.json` y llega como **PR de propuesta
+   de difusión**: ahí se revisa el texto y, si hace falta, se ajusta a mano. Si
+   alguna vez una red necesita un texto que la plantilla no resuelve, se le
+   puede pedir a Claude bajo demanda desde el PR; no es el camino por defecto.
 3. **Borradores y ventana.** El merge de esa propuesta dispara el job
    `difundir`. Primero valida la configuración; luego crea un _Borrador_ por red
    en Buffer y deja en el resumen del job el enlace a cada uno, el enlace a la
@@ -112,10 +147,11 @@ flowchart TD
   registro de difusión.
 - **Sin verificar** (spike en
   [#11](https://github.com/mistorias/mistorias-redes-sociales/issues/11)):
-  - La interfaz web de Buffer pasa un borrador a la cola (_Add to Queue_ /
-    _Schedule Post_), pero no se confirmó que la **API** lo haga. Si no puede,
-    el job `difundir` borra el borrador y crea el post agendado con el texto
-    releído, y el `bufferId` que se registra es el del post final.
+  - La API pasa un borrador a la cola con el mismo id (confirmado en #11), así
+    que no hace falta el camino alterno de borrar y crear el agendado.
+  - El acortador de Buffer acorta el enlace de X al publicar. No se verificó si
+    lo hace también en borradores, ni si conserva los parámetros UTM. Se
+    verifica antes de la primera difusión, leyendo el texto que queda en Buffer.
   - El paso `if: cancelled()` tras una cancelación manual tiene unos minutos de
     gracia en GitHub; hay que comprobarlo con una ejecución cancelada real. Si
     falla, los borradores quedan inertes (un borrador no se publica) y se borran
