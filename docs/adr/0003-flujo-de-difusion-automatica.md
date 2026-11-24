@@ -65,12 +65,18 @@ flowchart TD
    - `<LINK>`: el enlace a la historia con UTM
      (`?utm_source=<red>&utm_medium=social&utm_campaign=<slug>`), que arma el
      script. La plantilla ya no escribe los UTM a mano.
-   - `<TITULO_PRIMERA_NOTICIA>`: el título de la primera noticia de la semana.
-   - Hashtags: a partir de los **temas** de la historia. Cada tema está en
-     kebab-case (`educacion-publica`) y el script lo pasa a camelCase con `#` al
-     frente (`#educacionPublica`). Un hashtag válido solo tiene letras y
-     dígitos, sin espacios ni signos, y no es solo dígitos; un tema que no
-     cumpla se reporta, no se convierte a la fuerza.
+   - `<TITULO_PRIMERA_NOTICIA>`: el título de la primera noticia de la sección
+     «Noticias principales» de la historia, que es el primer texto en negrita.
+     El feed estándar no lo trae: mistorias-web lo agrega en su extensión
+     `_mistorias` (`primeraNoticia`), que su
+     [ADR 0033](https://github.com/mistorias/mistorias-web/blob/main/docs/adr/0033-feed-de-historias-para-redes.md)
+     permite.
+   - Hashtags: a partir de los **temas** de la historia, que el feed entrega en
+     `items[].tags`. Cada tema está en kebab-case (`fenomeno-el-nino`) y el
+     script lo pasa a camelCase con `#` al frente (`#fenomenoElNino`). Un
+     hashtag válido solo tiene letras y dígitos, sin espacios ni signos, y no
+     es solo dígitos; un tema que no cumpla se reporta, no se convierte a la
+     fuerza.
 
    La plantilla de Facebook es la base:
 
@@ -95,6 +101,20 @@ flowchart TD
    - El enlace se acorta con el acortador de Buffer. El canal de X lo tiene
      activado (`buff.ly`); Facebook e Instagram no. El script no llama a ningún
      acortador: Buffer lo aplica según la configuración del canal.
+
+   **Imagen.** Cada difusión lleva el `principal.jpg` de la historia. Buffer no
+   tiene una operación para subir archivos: recibe la **URL pública** de la
+   imagen (`assets.image.url` de `createPost`) y su texto alternativo, que la
+   API exige (`metadata.altText`).
+   - La URL es la de la imagen que la web ya publicó, `items[].image` del feed:
+     un JPG de 1200×630. No se usa la de `mistorias-contenido`, porque solo se
+     difunde lo que ya está publicado.
+   - El texto alternativo es el `imageAlt` de la historia. El feed estándar no
+     lo trae: mistorias-web lo agrega en `_mistorias` (`imageAlt`).
+   - La URL y el texto alternativo quedan en `difusiones/<slug>.json`, para
+     revisarlos en el PR de propuesta.
+   - Probado con el spike: un borrador en X con la URL publicada se creó con la
+     imagen (JPEG, 1200×630) y su texto alternativo, y luego se borró.
 
    El resultado queda en `difusiones/<slug>.json` y llega como **PR de propuesta
    de difusión**: ahí se revisa el texto y, si hace falta, se ajusta a mano. Si
@@ -152,6 +172,11 @@ flowchart TD
   - El acortador de Buffer acorta el enlace de X al publicar. No se verificó si
     lo hace también en borradores, ni si conserva los parámetros UTM. Se
     verifica antes de la primera difusión, leyendo el texto que queda en Buffer.
+  - La imagen solo se probó en un borrador, no en una publicación real. En el
+    borrador, Buffer conserva la URL de origen; falta confirmar que la descarga
+    al publicar y que la URL sigue disponible hasta entonces. En Instagram, la
+    proporción 1200×630 (1,905:1) queda al borde del mínimo de 1,91:1 del feed,
+    y se verifica antes de la primera difusión.
   - El paso `if: cancelled()` tras una cancelación manual tiene unos minutos de
     gracia en GitHub; hay que comprobarlo con una ejecución cancelada real. Si
     falla, los borradores quedan inertes (un borrador no se publica) y se borran
@@ -160,6 +185,11 @@ flowchart TD
   dentro de la carpeta de una historia: hoy su gate de carpetas solo admite
   `principal.jpg` y rompería el build. Ese cambio va en mistorias-web y **se
   fusiona antes** que el primer registro.
+- El feed de mistorias-web todavía no trae dos datos que usan las plantillas: el
+  título de la primera noticia (`_mistorias.primeraNoticia`) y el texto
+  alternativo de la imagen (`_mistorias.imageAlt`). Agregarlos es compatible con
+  su ADR 0033 y va en mistorias-web, antes de la primera difusión. Hoy el feed
+  devuelve 404: aún no está publicado.
 - Consumo de la API: crear, releer y agendar cada borrador, más las consultas de
   estado, suman unas 20 llamadas por semana; muy por debajo de las 3000 cada 30
   días del plan gratuito.
