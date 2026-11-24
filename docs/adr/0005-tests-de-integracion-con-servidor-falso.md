@@ -30,11 +30,12 @@ necesitaría la llave en CI, en contra del
   el camino alterno de borrarlo y crearlo agendado, si la API no permite lo
   primero), error de validación, límite de requests (429), post `fallido` y post
   que sigue pendiente pasados los reintentos.
-- **Smoke test de solo lectura**, con disparo manual (`workflow_dispatch`): con
-  una llave **distinta y de solo lectura** (`BUFFER_READ_ONLY_API_KEY`, ver
-  [ADR 0004](0004-credenciales-y-minimo-privilegio.md)), lista los canales
-  conectados y no crea nada. Detecta si Buffer cambió el contrato que las
-  _fixtures_ asumen. Si Buffer no ofrece esa llave, se corre solo en local.
+- **Smoke test de solo lectura**, con disparo manual (`workflow_dispatch`):
+  lista los canales conectados y no crea nada. Detecta si Buffer cambió el
+  contrato que las _fixtures_ asumen. Usa la única llave, `BUFFER_API_KEY`, que
+  también escribe (el plan gratuito no permite una segunda; ver
+  [ADR 0004](0004-credenciales-y-minimo-privilegio.md)), así que su cliente
+  rechaza cualquier mutación antes de enviarla, y un test lo comprueba.
 - La ventana de cancelación, la espera de dos minutos y la señal de cancelación
   se inyectan como parámetros, para que los tests no esperen de verdad. Casos
   propios de la ventana:

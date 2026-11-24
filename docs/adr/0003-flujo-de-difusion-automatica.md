@@ -57,14 +57,73 @@ flowchart TD
    hacia este repo. Se descartaron `repository_dispatch` desde el despliegue de
    la web (le daría a la web permiso de escritura sobre este repo) y leer los
    _deployments_ de GitHub (acopla el script a cómo despliega la web).
-2. **Propuesta de difusión, sin IA.** Un script aplica plantillas fijas por red:
-   el gancho es el `summary`, el cierre es el de cada red y el enlace lleva UTM
-   (`utm_source=<red>&utm_medium=social&utm_campaign=<slug>`). Valida los
-   límites de caracteres de cada red. El resultado queda en
-   `difusiones/<slug>.json` y llega como **PR de propuesta de difusión**: ahí se
-   revisa el texto y, si hace falta, se ajusta a mano. Si alguna vez una red
-   necesita un texto que la plantilla no resuelve, se le puede pedir a Claude
-   bajo demanda desde el PR; no es el camino por defecto.
+2. **Propuesta de difusión, sin IA.** Un script arma el texto de cada red de
+   [CONTEXT.md](../../CONTEXT.md) (Facebook, Instagram y X) a partir de su
+   _Plantilla de red_. La plantilla de cada red sale del plan de redes sociales.
+   Los huecos se llenan así:
+   - `<RESUMEN_HISTORIA>`: el `summary` de la historia. Va primero.
+   - `<LINK>`: el enlace a la historia con UTM
+     (`?utm_source=<red>&utm_medium=social&utm_campaign=<slug>`), que arma el
+     script. La plantilla ya no escribe los UTM a mano.
+   - `<TITULO_PRIMERA_NOTICIA>`: el título de la primera noticia de la sección
+     «Noticias principales» de la historia, que es el primer texto en negrita.
+     El feed estándar no lo trae: mistorias-web lo agrega en su extensión
+     `_mistorias` (`primeraNoticia`), que su
+     [ADR 0033](https://github.com/mistorias/mistorias-web/blob/main/docs/adr/0033-feed-de-historias-para-redes.md)
+     permite.
+   - Hashtags: a partir de los **temas** de la historia, que el feed entrega en
+     `items[].tags`. Cada tema está en kebab-case (`fenomeno-el-nino`) y el
+     script lo pasa a camelCase con `#` al frente (`#fenomenoElNino`). Un
+     hashtag válido solo tiene letras y dígitos, sin espacios ni signos, y no
+     es solo dígitos; un tema que no cumpla se reporta, no se convierte a la
+     fuerza. Van como máximo **dos** hashtags, los primeros temas del feed, en
+     todas las redes.
+
+   La plantilla de Facebook es la base, y Instagram usa la misma, con
+   `utm_source=instagram` en el enlace:
+
+   ```text
+   <RESUMEN_HISTORIA>
+
+   🤩 Ya está disponible la última historia en <LINK>
+
+   ➡️ Noticia de la semana: <TITULO_PRIMERA_NOTICIA>
+
+   #tag1 #tag2
+   ```
+
+   **X tiene su propia variante**, con estas reglas:
+   - Sin la línea de la noticia de la semana.
+   - Sin líneas en blanco entre párrafos.
+   - Hashtags: los dos primeros temas, pero solo los que quepan en 280
+     caracteres. Si solo cabe uno, va uno; si ninguno cabe, no va ninguno. Un
+     hashtag no se corta a la mitad.
+   - El conteo es el de X, no `length` de JavaScript: cada enlace cuenta 23
+     caracteres, sin importar su largo, y los emojis cuentan 2.
+   - El enlace se acorta con el acortador de Buffer. El canal de X lo tiene
+     activado (`buff.ly`); Facebook e Instagram no. El script no llama a ningún
+     acortador: Buffer lo aplica según la configuración del canal.
+
+   **Imagen.** Cada difusión lleva el `principal.jpg` de la historia. Buffer no
+   tiene una operación para subir archivos: recibe la **URL pública** de la
+   imagen (`assets.image.url` de `createPost`) y su texto alternativo, que la
+   API exige (`metadata.altText`).
+   - La URL es la de la imagen que la web ya publicó, `items[].image` del feed:
+     un JPG de 1200×630. No se usa la de `mistorias-contenido`, porque solo se
+     difunde lo que ya está publicado.
+   - El texto alternativo es el `imageAlt` de la historia. El feed estándar no
+     lo trae: mistorias-web lo agrega en `_mistorias` (`imageAlt`).
+   - Una historia sin imagen no se propone: el script falla y no abre el PR.
+     Instagram no publica sin imagen, y las tres redes salen con la misma.
+   - La URL y el texto alternativo quedan en `difusiones/<slug>.json`, para
+     revisarlos en el PR de propuesta.
+   - Probado con el spike: un borrador en X con la URL publicada se creó con la
+     imagen (JPEG, 1200×630) y su texto alternativo, y luego se borró.
+
+   El resultado queda en `difusiones/<slug>.json` y llega como **PR de propuesta
+   de difusión**: ahí se revisa el texto y, si hace falta, se ajusta a mano. Si
+   alguna vez una red necesita un texto que la plantilla no resuelve, se le
+   puede pedir a Claude bajo demanda desde el PR; no es el camino por defecto.
 3. **Borradores y ventana.** El merge de esa propuesta dispara el job
    `difundir`. Primero valida la configuración; luego crea un _Borrador_ por red
    en Buffer y deja en el resumen del job el enlace a cada uno, el enlace a la
@@ -112,10 +171,16 @@ flowchart TD
   registro de difusión.
 - **Sin verificar** (spike en
   [#11](https://github.com/mistorias/mistorias-redes-sociales/issues/11)):
-  - La interfaz web de Buffer pasa un borrador a la cola (_Add to Queue_ /
-    _Schedule Post_), pero no se confirmó que la **API** lo haga. Si no puede,
-    el job `difundir` borra el borrador y crea el post agendado con el texto
-    releído, y el `bufferId` que se registra es el del post final.
+  - La API pasa un borrador a la cola con el mismo id (confirmado en #11), así
+    que no hace falta el camino alterno de borrar y crear el agendado.
+  - El acortador de Buffer acorta el enlace de X al publicar. No se verificó si
+    lo hace también en borradores, ni si conserva los parámetros UTM. Se
+    verifica antes de la primera difusión, leyendo el texto que queda en Buffer.
+  - La imagen solo se probó en un borrador, no en una publicación real. En el
+    borrador, Buffer conserva la URL de origen; falta confirmar que la descarga
+    al publicar y que la URL sigue disponible hasta entonces. En Instagram, la
+    proporción 1200×630 (1,905:1) queda al borde del mínimo de 1,91:1 del feed,
+    y se verifica antes de la primera difusión.
   - El paso `if: cancelled()` tras una cancelación manual tiene unos minutos de
     gracia en GitHub; hay que comprobarlo con una ejecución cancelada real. Si
     falla, los borradores quedan inertes (un borrador no se publica) y se borran
@@ -124,6 +189,12 @@ flowchart TD
   dentro de la carpeta de una historia: hoy su gate de carpetas solo admite
   `principal.jpg` y rompería el build. Ese cambio va en mistorias-web y **se
   fusiona antes** que el primer registro.
+- El feed de mistorias-web todavía no trae dos datos que usan las plantillas: el
+  título de la primera noticia (`_mistorias.primeraNoticia`) y el texto
+  alternativo de la imagen (`_mistorias.imageAlt`). Agregarlos es compatible con
+  su ADR 0033 y va en mistorias-web, antes de la primera difusión
+  ([mistorias-web#264](https://github.com/mistorias/mistorias-web/issues/264)).
+  Hoy el feed devuelve 404: aún no está publicado.
 - Consumo de la API: crear, releer y agendar cada borrador, más las consultas de
   estado, suman unas 20 llamadas por semana; muy por debajo de las 3000 cada 30
   días del plan gratuito.
