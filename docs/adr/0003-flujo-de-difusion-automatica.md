@@ -76,9 +76,11 @@ flowchart TD
      script lo pasa a camelCase con `#` al frente (`#fenomenoElNino`). Un
      hashtag válido solo tiene letras y dígitos, sin espacios ni signos, y no
      es solo dígitos; un tema que no cumpla se reporta, no se convierte a la
-     fuerza.
+     fuerza. Van como máximo **dos** hashtags, los primeros temas del feed, en
+     todas las redes.
 
-   La plantilla de Facebook es la base:
+   La plantilla de Facebook es la base, y Instagram usa la misma, con
+   `utm_source=instagram` en el enlace:
 
    ```text
    <RESUMEN_HISTORIA>
@@ -93,9 +95,9 @@ flowchart TD
    **X tiene su propia variante**, con estas reglas:
    - Sin la línea de la noticia de la semana.
    - Sin líneas en blanco entre párrafos.
-   - Sin límite de hashtags fijo: se agregan en el orden de los temas mientras
-     el texto quepa en 280 caracteres. Un hashtag no se corta a la mitad: si
-     ninguno cabe, no va ninguno.
+   - Hashtags: los dos primeros temas, pero solo los que quepan en 280
+     caracteres. Si solo cabe uno, va uno; si ninguno cabe, no va ninguno. Un
+     hashtag no se corta a la mitad.
    - El conteo es el de X, no `length` de JavaScript: cada enlace cuenta 23
      caracteres, sin importar su largo, y los emojis cuentan 2.
    - El enlace se acorta con el acortador de Buffer. El canal de X lo tiene
@@ -111,6 +113,8 @@ flowchart TD
      difunde lo que ya está publicado.
    - El texto alternativo es el `imageAlt` de la historia. El feed estándar no
      lo trae: mistorias-web lo agrega en `_mistorias` (`imageAlt`).
+   - Una historia sin imagen no se propone: el script falla y no abre el PR.
+     Instagram no publica sin imagen, y las tres redes salen con la misma.
    - La URL y el texto alternativo quedan en `difusiones/<slug>.json`, para
      revisarlos en el PR de propuesta.
    - Probado con el spike: un borrador en X con la URL publicada se creó con la
@@ -188,8 +192,9 @@ flowchart TD
 - El feed de mistorias-web todavía no trae dos datos que usan las plantillas: el
   título de la primera noticia (`_mistorias.primeraNoticia`) y el texto
   alternativo de la imagen (`_mistorias.imageAlt`). Agregarlos es compatible con
-  su ADR 0033 y va en mistorias-web, antes de la primera difusión. Hoy el feed
-  devuelve 404: aún no está publicado.
+  su ADR 0033 y va en mistorias-web, antes de la primera difusión
+  ([mistorias-web#264](https://github.com/mistorias/mistorias-web/issues/264)).
+  Hoy el feed devuelve 404: aún no está publicado.
 - Consumo de la API: crear, releer y agendar cada borrador, más las consultas de
   estado, suman unas 20 llamadas por semana; muy por debajo de las 3000 cada 30
   días del plan gratuito.
