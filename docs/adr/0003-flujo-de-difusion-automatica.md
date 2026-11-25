@@ -143,8 +143,9 @@ flowchart TD
 5. **Agendar.** Cumplida la ventana, el mismo job **relee cada borrador** en
    Buffer, por si alguien lo editó ahí, y lo pasa a agendado para **dos minutos
    después**. El texto de X que devuelve Buffer ya trae el enlace acortado: ese
-   es el que sale, y el que se registra. No se usa el flujo de aprobación propio de Buffer: no está en el
-   plan gratuito y la decisión ya ocurrió en GitHub.
+   es el que sale, y el que se registra. No se usa el flujo de aprobación
+   propio de Buffer: no está en el plan gratuito y la decisión ya ocurrió en
+   GitHub.
 6. **Confirmar y registrar.** El job espera esos dos minutos y consulta en
    Buffer el estado de cada post, con unos pocos reintentos hasta un tope de
    unos 15 minutos. Sube el resultado como artefacto y el job `registrar` (otro
