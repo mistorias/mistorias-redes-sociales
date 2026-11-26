@@ -102,7 +102,10 @@ flowchart TD
      caracteres, sin importar su largo, y los emojis cuentan 2.
    - El enlace se acorta con el acortador de Buffer. El canal de X lo tiene
      activado (`buff.ly`); Facebook e Instagram no. El script no llama a ningún
-     acortador: Buffer lo aplica según la configuración del canal.
+     acortador: Buffer acorta al **crear** el post, sea borrador o agendado, y
+     el texto que devuelve ya trae el enlace corto. Ese enlace redirige (302) a
+     la URL completa con sus UTM, que no se pierden. Probado con la última
+     historia.
 
    **Imagen.** Cada difusión lleva el `principal.jpg` de la historia. Buffer no
    tiene una operación para subir archivos: recibe la **URL pública** de la
@@ -139,8 +142,10 @@ flowchart TD
    no se agrega al registro.
 5. **Agendar.** Cumplida la ventana, el mismo job **relee cada borrador** en
    Buffer, por si alguien lo editó ahí, y lo pasa a agendado para **dos minutos
-   después**. No se usa el flujo de aprobación propio de Buffer: no está en el
-   plan gratuito y la decisión ya ocurrió en GitHub.
+   después**. El texto de X que devuelve Buffer ya trae el enlace acortado: ese
+   es el que sale, y el que se registra. No se usa el flujo de aprobación
+   propio de Buffer: no está en el plan gratuito y la decisión ya ocurrió en
+   GitHub.
 6. **Confirmar y registrar.** El job espera esos dos minutos y consulta en
    Buffer el estado de cada post, con unos pocos reintentos hasta un tope de
    unos 15 minutos. Sube el resultado como artefacto y el job `registrar` (otro
@@ -173,9 +178,6 @@ flowchart TD
   [#11](https://github.com/mistorias/mistorias-redes-sociales/issues/11)):
   - La API pasa un borrador a la cola con el mismo id (confirmado en #11), así
     que no hace falta el camino alterno de borrar y crear el agendado.
-  - El acortador de Buffer acorta el enlace de X al publicar. No se verificó si
-    lo hace también en borradores, ni si conserva los parámetros UTM. Se
-    verifica antes de la primera difusión, leyendo el texto que queda en Buffer.
   - La imagen solo se probó en un borrador, no en una publicación real. En el
     borrador, Buffer conserva la URL de origen; falta confirmar que la descarga
     al publicar y que la URL sigue disponible hasta entonces. En Instagram, la
@@ -189,12 +191,13 @@ flowchart TD
   dentro de la carpeta de una historia: hoy su gate de carpetas solo admite
   `principal.jpg` y rompería el build. Ese cambio va en mistorias-web y **se
   fusiona antes** que el primer registro.
-- El feed de mistorias-web todavía no trae dos datos que usan las plantillas: el
-  título de la primera noticia (`_mistorias.primeraNoticia`) y el texto
-  alternativo de la imagen (`_mistorias.imageAlt`). Agregarlos es compatible con
-  su ADR 0033 y va en mistorias-web, antes de la primera difusión
+- El feed de mistorias-web ya trae los dos datos que las plantillas necesitan
+  fuera del estándar: el título de la primera noticia
+  (`_mistorias.primeraNoticia`) y el texto alternativo de la imagen
+  (`_mistorias.imageAlt`)
   ([mistorias-web#264](https://github.com/mistorias/mistorias-web/issues/264)).
-  Hoy el feed devuelve 404: aún no está publicado.
+  Está publicado en GitHub Pages; en `mistorias.pe/historias.json` devuelve 404
+  hasta que se despliegue a producción, que es el feed que lee el cron.
 - Consumo de la API: crear, releer y agendar cada borrador, más las consultas de
   estado, suman unas 20 llamadas por semana; muy por debajo de las 3000 cada 30
   días del plan gratuito.
