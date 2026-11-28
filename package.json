@@ -6,13 +6,25 @@
   "packageManager": "pnpm@12.8.2",
   "scripts": {
     "format:markdown": "prettier --write \"**/*.md\"",
-    "lint:markdown": "markdownlint-cli2 \"**/*.md\" \"!node_modules\""
+    "lint:markdown": "markdownlint-cli2 \"**/*.md\" \"!node_modules\"",
+    "format:code": "prettier --write --no-error-on-unmatched-pattern \"src/**/*.ts\" \"tests/**/*.ts\" \"*.ts\"",
+    "lint:code": "prettier --check --no-error-on-unmatched-pattern \"src/**/*.ts\" \"tests/**/*.ts\" \"*.ts\"",
+    "typecheck": "tsc",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "devDependencies": {
     "@github/markdownlint-github": "^0.8.4",
+    "@types/node": "^24.19.2",
+    "@vitest/coverage-v8": "^5.1.1",
     "markdown-it": "^15.0.3",
     "markdownlint-cli2": "^0.23.3",
     "markdownlint-cli2-formatter-pretty": "^0.0.10",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.1"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
   }
 }
