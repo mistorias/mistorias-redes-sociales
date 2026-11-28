@@ -9,6 +9,6 @@ actualizan a mano cuando cambia el contrato, en un PR.
   historia en mistorias-contenido. No es una respuesta grabada: el feed de
   producción todavía devuelve 404. El nombre del archivo de la imagen es
   ilustrativo.
-- `github.json`: respuestas de la API REST de GitHub, una por clave, reducidas
-  a los campos que el código lee y con la forma de la documentación de GitHub.
-  No son respuestas grabadas.
+- `github/`: respuestas de la API REST de GitHub, una por archivo, reducidas a
+  los campos que el código lee y con la forma de la documentación de GitHub. No
+  son respuestas grabadas.
