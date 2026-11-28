@@ -1,0 +1,58 @@
+name: Proponer difusiones
+
+# Cada hora lee el feed de historias de mistorias.pe y abre un PR de propuesta
+# de difusión por cada historia publicada que todavía no tiene una (ADR 0003,
+# paso 2). Usa solo la App **propuestas**: no ve la llave de Buffer ni
+# escribe en mistorias-contenido (ADR 0004).
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Dos corridas a la vez podrían abrir dos PRs para la misma historia.
+concurrency:
+  group: proponer
+  cancel-in-progress: false
+
+jobs:
+  proponer:
+    runs-on: ubuntu-latest
+    environment: propuestas
+    steps:
+      - name: Clonar
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Instalar pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - name: Instalar Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # El token vence en una hora y solo alcanza a este repo.
+      - name: Token de la App propuestas
+        id: app
+        uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc # v3.4.0
+        with:
+          client-id: ${{ vars.SOCIAL_PROPOSALS_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.SOCIAL_PROPOSALS_BOT_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Proponer
+        run: pnpm propose
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          # Vacía, se lee el feed de producción. Sirve para apuntar al de
+          # GitHub Pages mientras mistorias.pe/historias.json devuelve 404.
+          SITE_FEED_URL: ${{ vars.SITE_FEED_URL }}

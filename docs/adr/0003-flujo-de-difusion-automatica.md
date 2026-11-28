@@ -160,7 +160,10 @@ flowchart TD
    `difusiones/<slug>.json` o un PR abierto para ese slug; por eso una difusión
    cancelada no se vuelve a proponer sola. Para difundirla después se vuelve a
    correr esa ejecución (_Re-run all jobs_). El job `difundir` no agenda en una
-   red que ya tiene una entrada `difundido` en el registro.
+   red que ya tiene una entrada `difundido` en el registro. El cron solo
+   considera las historias publicadas desde el 2026-11-26 (`BROADCAST_SINCE`
+   en el código): el feed trae todas, y sin ese tope la primera corrida abriría
+   una propuesta por cada historia anterior al flujo.
 
 ## Consecuencias
 
