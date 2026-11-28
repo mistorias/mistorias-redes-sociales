@@ -11,7 +11,8 @@
     "lint:code": "prettier --check --no-error-on-unmatched-pattern \"src/**/*.ts\" \"tests/**/*.ts\" \"*.ts\"",
     "typecheck": "tsc",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "propose": "node src/cli/propose.ts"
   },
   "devDependencies": {
     "@github/markdownlint-github": "^0.8.4",
