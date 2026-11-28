@@ -8,9 +8,14 @@ import {
   type RecordedRequest,
 } from "./support/fake-server.ts";
 
-const GITHUB = JSON.parse(
-  readFileSync(new URL("fixtures/github.json", import.meta.url), "utf8"),
-) as Record<string, unknown>;
+// Una respuesta por archivo, con el nombre de lo que devuelve GitHub.
+const githubFixture = (name: string): unknown =>
+  JSON.parse(
+    readFileSync(
+      new URL(`fixtures/github/${name}.json`, import.meta.url),
+      "utf8",
+    ),
+  ) as unknown;
 
 const REPO = "/repos/mistorias/mistorias-redes-sociales";
 const TOKEN = "ghs_token-de-prueba";
@@ -60,7 +65,7 @@ describe("createGitHubClient", () => {
   });
 
   it("envía el token como Bearer y nunca lo devuelve en un error", async () => {
-    const github = await clientFor(only(401, GITHUB.badCredentials));
+    const github = await clientFor(only(401, githubFixture("bad-credentials")));
 
     const error = await github.branchSha("main").catch((e: unknown) => e);
 
@@ -73,7 +78,7 @@ describe("createGitHubClient", () => {
 
   describe("fileExists", () => {
     it("es true si GitHub devuelve el archivo", async () => {
-      const github = await clientFor(only(200, GITHUB.content));
+      const github = await clientFor(only(200, githubFixture("content")));
 
       expect(await github.fileExists("difusiones/a.json", "main")).toBe(true);
       expect(lastRequest().route).toBe(
@@ -82,7 +87,7 @@ describe("createGitHubClient", () => {
     });
 
     it("es false si GitHub responde 404", async () => {
-      const github = await clientFor(only(404, GITHUB.notFound));
+      const github = await clientFor(only(404, githubFixture("not-found")));
 
       expect(await github.fileExists("difusiones/a.json", "main")).toBe(false);
     });
@@ -100,7 +105,7 @@ describe("createGitHubClient", () => {
 
   describe("hasOpenPullRequest", () => {
     it("busca los PRs abiertos de la rama del dueño", async () => {
-      const github = await clientFor(only(200, GITHUB.pullsOpen));
+      const github = await clientFor(only(200, githubFixture("pulls-open")));
 
       expect(await github.hasOpenPullRequest("difusion/a")).toBe(true);
       expect(lastRequest().route).toBe(
@@ -117,7 +122,7 @@ describe("createGitHubClient", () => {
 
   describe("branchSha", () => {
     it("devuelve el sha de la rama", async () => {
-      const github = await clientFor(only(200, GITHUB.refMain));
+      const github = await clientFor(only(200, githubFixture("ref-main")));
 
       expect(await github.branchSha("main")).toBe(
         "ef809d5c0f2b6d6a1d1f0b1f6b5b9c1e3a2d4f60",
@@ -135,7 +140,7 @@ describe("createGitHubClient", () => {
 
   describe("createOrResetBranch", () => {
     it("crea la rama en el sha dado", async () => {
-      const github = await clientFor(only(201, GITHUB.refMain));
+      const github = await clientFor(only(201, githubFixture("ref-main")));
 
       await github.createOrResetBranch("difusion/a", "abc");
 
@@ -148,8 +153,8 @@ describe("createGitHubClient", () => {
     it("si la rama ya existe, la reinicia en el sha dado", async () => {
       const github = await clientFor(({ method }) =>
         method === "POST"
-          ? { status: 422, body: GITHUB.refExists }
-          : { body: GITHUB.refMain },
+          ? { status: 422, body: githubFixture("ref-exists") }
+          : { body: githubFixture("ref-main") },
       );
 
       await github.createOrResetBranch("difusion/a", "abc");
@@ -170,7 +175,7 @@ describe("createGitHubClient", () => {
   });
 
   it("createFile sube el contenido en base64 a la rama", async () => {
-    const github = await clientFor(only(201, GITHUB.contentCreated));
+    const github = await clientFor(only(201, githubFixture("content-created")));
 
     await github.createFile({
       path: "difusiones/a.json",
@@ -186,7 +191,7 @@ describe("createGitHubClient", () => {
   });
 
   it("createPullRequest abre el PR y devuelve su número y enlace", async () => {
-    const github = await clientFor(only(201, GITHUB.pullCreated));
+    const github = await clientFor(only(201, githubFixture("pull-created")));
 
     const pull = await github.createPullRequest({
       title: "título",
