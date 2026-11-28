@@ -1,0 +1,54 @@
+{
+  "notFound": {
+    "message": "Not Found",
+    "documentation_url": "https://docs.github.com/rest/repos/contents#get-repository-content",
+    "status": "404"
+  },
+  "content": {
+    "type": "file",
+    "name": "2026-11-19-la-ultima-clase-de-matematica-de-ruth-fue-medir-el-techo-que-se-volo.json",
+    "path": "difusiones/2026-11-19-la-ultima-clase-de-matematica-de-ruth-fue-medir-el-techo-que-se-volo.json",
+    "sha": "3d21ec53a331a6f037a91c368710b99387d012c1"
+  },
+  "pullsOpen": [
+    {
+      "number": 21,
+      "state": "open",
+      "html_url": "https://github.com/mistorias/mistorias-redes-sociales/pull/21",
+      "head": {
+        "ref": "difusion/2026-11-19-la-ultima-clase-de-matematica-de-ruth-fue-medir-el-techo-que-se-volo"
+      }
+    }
+  ],
+  "refMain": {
+    "ref": "refs/heads/main",
+    "object": {
+      "sha": "ef809d5c0f2b6d6a1d1f0b1f6b5b9c1e3a2d4f60",
+      "type": "commit"
+    }
+  },
+  "refExists": {
+    "message": "Reference already exists",
+    "documentation_url": "https://docs.github.com/rest/git/refs#create-a-reference",
+    "status": "422"
+  },
+  "contentCreated": {
+    "content": {
+      "path": "difusiones/2026-11-19-la-ultima-clase-de-matematica-de-ruth-fue-medir-el-techo-que-se-volo.json",
+      "sha": "95b966ae1c166bd92f8ae7d1c313e738c731dfc3"
+    },
+    "commit": {
+      "sha": "7638417db6d59f3c431d3e1f261cc637155684cd"
+    }
+  },
+  "pullCreated": {
+    "number": 22,
+    "state": "open",
+    "html_url": "https://github.com/mistorias/mistorias-redes-sociales/pull/22"
+  },
+  "badCredentials": {
+    "message": "Bad credentials",
+    "documentation_url": "https://docs.github.com/rest",
+    "status": "401"
+  }
+}
