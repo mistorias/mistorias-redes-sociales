@@ -13,7 +13,6 @@ const fixture = (path: string): unknown =>
   JSON.parse(
     readFileSync(new URL(`fixtures/${path}`, import.meta.url), "utf8"),
   ) as unknown;
-const GITHUB = fixture("github.json") as Record<string, unknown>;
 
 const FEED = fixture("feed/historias.json") as {
   items: Record<string, unknown>[];
@@ -49,32 +48,32 @@ const gitHubHandler =
   (state: GitHubState) =>
   ({ method, path }: RecordedRequest): FakeResponse => {
     if (state.unauthorized) {
-      return { status: 401, body: GITHUB.badCredentials };
+      return { status: 401, body: fixture("github/bad-credentials.json") };
     }
     const route = `${method} ${decodeURIComponent(path)}`;
     switch (route) {
       case `GET ${REPO}/contents/${FILE}?ref=main`:
         return state.proposalOnMain
-          ? { body: GITHUB.content }
-          : { status: 404, body: GITHUB.notFound };
+          ? { body: fixture("github/content.json") }
+          : { status: 404, body: fixture("github/not-found.json") };
       case `GET ${REPO}/pulls?state=open&head=mistorias:${BRANCH}`:
         return {
-          body: state.openPull ? GITHUB.pullsOpen : [],
+          body: state.openPull ? fixture("github/pulls-open.json") : [],
         };
       case `GET ${REPO}/git/ref/heads/main`:
-        return { body: GITHUB.refMain };
+        return { body: fixture("github/ref-main.json") };
       case `POST ${REPO}/git/refs`:
         return state.branchExists
-          ? { status: 422, body: GITHUB.refExists }
-          : { status: 201, body: GITHUB.refMain };
+          ? { status: 422, body: fixture("github/ref-exists.json") }
+          : { status: 201, body: fixture("github/ref-main.json") };
       case `PATCH ${REPO}/git/refs/heads/${BRANCH}`:
-        return { body: GITHUB.refMain };
+        return { body: fixture("github/ref-main.json") };
       case `PUT ${REPO}/contents/${FILE}`:
-        return { status: 201, body: GITHUB.contentCreated };
+        return { status: 201, body: fixture("github/content-created.json") };
       case `POST ${REPO}/pulls`:
-        return { status: 201, body: GITHUB.pullCreated };
+        return { status: 201, body: fixture("github/pull-created.json") };
       default:
-        return { status: 404, body: GITHUB.notFound };
+        return { status: 404, body: fixture("github/not-found.json") };
     }
   };
 
