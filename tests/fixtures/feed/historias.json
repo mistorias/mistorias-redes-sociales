@@ -1,0 +1,35 @@
+{
+  "version": "https://jsonfeed.org/version/1.1",
+  "title": "Mistorias",
+  "home_page_url": "https://mistorias.pe/",
+  "feed_url": "https://mistorias.pe/historias.json",
+  "language": "es-PE",
+  "items": [
+    {
+      "id": "2026-11-19-la-ultima-clase-de-matematica-de-ruth-fue-medir-el-techo-que-se-volo",
+      "url": "https://mistorias.pe/historias/2026-11-19-la-ultima-clase-de-matematica-de-ruth-fue-medir-el-techo-que-se-volo/",
+      "title": "La última clase de matemática de Ruth fue medir el techo que se voló",
+      "summary": "Al aula de Ruth, en Piura, el viento le voló una plancha, y su clase de matemática fue medir el techo con wincha y Pitágoras. La plata llega en diciembre, si todo sale bien.",
+      "content_text": "Al aula de Ruth, en Piura, el viento le voló una plancha, y su clase de matemática fue medir el techo con wincha y Pitágoras. La plata llega en diciembre, si todo sale bien.",
+      "image": "https://mistorias.pe/_astro/principal.Bx3kQ9aZ_Z1abcd.jpg",
+      "date_published": "2026-11-19T00:00:00.000Z",
+      "authors": [
+        {
+          "name": "Paolo Carrasco",
+          "url": "https://mistorias.pe/autores/paolo-carrasco/"
+        }
+      ],
+      "tags": [
+        "fenomeno-el-nino",
+        "infraestructura-educativa",
+        "calendario-escolar",
+        "secundaria",
+        "piura"
+      ],
+      "_mistorias": {
+        "primeraNoticia": "Cuatro regiones del norte adelantan el cierre escolar por El Niño",
+        "imageAlt": "Ilustración de una alumna parada sobre una carpeta que sostiene una wincha hacia el hueco del techo de calamina, mientras la directora, sentada, la tensa y anota en un cuaderno"
+      }
+    }
+  ]
+}
