@@ -171,8 +171,8 @@ importers:
         version: 4.6.7
     devDependencies:
       '@github/markdownlint-github':
-        specifier: ^0.8.4
-        version: 0.8.4
+        specifier: ^0.8.5
+        version: 0.8.5
       '@types/node':
         specifier: ^24.19.2
         version: 24.19.2
@@ -230,8 +230,8 @@ packages:
   '@emnapi/wasi-threads@2.2.0':
     resolution: {integrity: sha512-JP7OYH38Q7+pyTAe14raZHLQIK7BDKbdwji+Xi3pcd/6QkJYQH3SX4wu6EplGrGJWRepoNzedfm0G3B9Z4e9Rw==}
 
-  '@github/markdownlint-github@0.8.4':
-    resolution: {integrity: sha512-dPBvvCPonvJkP+1AKZ7qu8kODmFkuo8zEhSWxbcjj4PZjMoDDbz7Z0d+GXG2So598B0zfv29Av26kB0SrrqSiw==}
+  '@github/markdownlint-github@0.8.5':
+    resolution: {integrity: sha512-0DCQy4Wfsz7wXybf1t295DvQ5zQPglZF3JdWBWepANsb7cn+DFdvwOfBP434o7MvOfrMWk9LRycIVBXYilb3VA==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
 
   '@jridgewell/resolve-uri@3.1.3':
@@ -816,10 +816,6 @@ packages:
     resolution: {integrity: sha512-9/7gE95FNPkfUWrjJIoHZza2iLmuJlPD0UNMxPi7bxUrbCR525YZY0r+zyfes0dZI5ZZ/uNIXUJca0pJvtw41g==}
     hasBin: true
 
-  markdown-it@15.0.2:
-    resolution: {integrity: sha512-q4IGxMv56jCqT4OCRCADBoDP3LO4MhmTXjFbphHPXs4g3j9Xg5RDnxqN8IF/3vIWEU+VCnUq+7JUg/cfy2E6Qw==}
-    hasBin: true
-
   markdown-it@15.0.3:
     resolution: {integrity: sha512-+Az7Ojz3iRGu8KYMvJ6xVhvrxP3eE+vEtJX75Ow88XBpcQNV/0lGX5ZynIIBftREo4DC2jsveAMDaeltmm8QvQ==}
     hasBin: true
@@ -1182,10 +1178,10 @@ snapshots:
       tslib: 2.9.1
     optional: true
 
-  '@github/markdownlint-github@0.8.4':
+  '@github/markdownlint-github@0.8.5':
     dependencies:
       lodash-es: 4.18.1
-      markdown-it: 15.0.2
+      markdown-it: 15.0.3
 
   '@jridgewell/resolve-uri@3.1.3': {}
 
@@ -1596,15 +1592,6 @@ snapshots:
       source-map-js: 1.2.4
 
   markdown-it@15.0.1:
-    dependencies:
-      argparse: 3.0.3
-      entities: 8.1.0
-      linkify-it: 6.1.0
-      mdurl: 2.1.0
-      punycode.js: 2.3.1
-      uc.micro: 3.0.0
-
-  markdown-it@15.0.2:
     dependencies:
       argparse: 3.0.3
       entities: 8.1.0
