@@ -82,11 +82,23 @@ causa. Revisa el diff después de correr cualquiera de los dos comandos.
 
 ## Código (integración con Buffer)
 
-Lenguaje, runtime y gestor de paquetes ya están decididos — Node, TypeScript y
-pnpm. El manejo de credenciales y el framework de testing siguen abiertos; se
-deciden al construir la integración. Esta sección se completa entonces con cómo
-correr el script y sus tests en local, y cómo se configuran las credenciales de
-la API de Buffer sin commitearlas.
+Node, TypeScript y pnpm
+([ADR 0002](docs/adr/0002-tech-stack-integracion-buffer.md)). Los tests corren
+con vitest contra un servidor HTTP falso, sin llaves ni red
+([ADR 0005](docs/adr/0005-tests-de-integracion-con-servidor-falso.md)).
+
+```bash
+pnpm typecheck        # tipos en modo estricto
+pnpm format:code      # formatea el TypeScript a 80 columnas
+pnpm lint:code        # verifica el formato
+pnpm test             # tests de integración
+pnpm test:coverage    # tests con el umbral de 90%
+```
+
+El código vive en `src/` y sus tests en `tests/`, con las respuestas de los
+servicios en `tests/fixtures/`. Las credenciales nunca van en el repo: ver
+`.env.example` y el
+[ADR 0004](docs/adr/0004-credenciales-y-minimo-privilegio.md).
 
 ## Decisiones Técnicas
 
