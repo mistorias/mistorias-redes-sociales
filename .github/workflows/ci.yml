@@ -21,14 +21,15 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Instalar pnpm
-        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
-
       - name: Instalar Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
-          cache: pnpm
+
+      # pnpm sale de corepack, que viene con Node, en la versión que fija
+      # `packageManager`. Así no hace falta una acción de terceros.
+      - name: Instalar pnpm
+        run: corepack enable
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
